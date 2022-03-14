@@ -1,5 +1,6 @@
 package com.odcode.Wallet.API.service;
 
+import com.odcode.Wallet.API.exceptions.RegistrationFailedException;
 import com.odcode.Wallet.API.exceptions.TransactionFailedException;
 import com.odcode.Wallet.API.model.KycLevel;
 import com.odcode.Wallet.API.model.Wallet;
@@ -10,6 +11,7 @@ import com.odcode.Wallet.API.registration_request.WalletRegistrationRequest;
 import com.odcode.Wallet.API.repository.WalletRepository;
 import lombok.AllArgsConstructor;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,22 +24,32 @@ public class WalletService {
 
 
     public Long registerUser(WalletRegistrationRequest walletRegistrationRequest) {
-        Wallet wallet = new Wallet();
-        wallet.setEmail(walletRegistrationRequest.getEmail());
-        wallet.setFirstName(walletRegistrationRequest.getFirstName());
-        wallet.setKycLevel(walletRegistrationRequest.getKycLevel());
-        wallet.setGender(walletRegistrationRequest.getGender());
-        wallet.setLastName(walletRegistrationRequest.getLastName());
-        wallet.setDateOfBirth(walletRegistrationRequest.getDateOfBirth());
+        try {
+            Wallet wallet = new Wallet();
+            wallet.setEmail(walletRegistrationRequest.getEmail());
+            wallet.setFirstName(walletRegistrationRequest.getFirstName());
+            wallet.setKycLevel(walletRegistrationRequest.getKycLevel());
+            wallet.setGender(walletRegistrationRequest.getGender());
+            wallet.setLastName(walletRegistrationRequest.getLastName());
+            wallet.setDateOfBirth(walletRegistrationRequest.getDateOfBirth());
 
-        Long accountNumber = generateAccountNumber(60000000000L, 69000000000L);
+            Long accountNumber = generateAccountNumber(60000000000L, 69000000000L);
 
-        wallet.setAccountNo(accountNumber);
-        wallet.setBalance(BigDecimal.valueOf(0.00));
-        setTransactionLimit(walletRegistrationRequest,wallet);
-        walletRepository.save(wallet);
-        return accountNumber;
+            wallet.setAccountNo(accountNumber);
+            wallet.setBalance(BigDecimal.valueOf(0.00));
+            setTransactionLimit(walletRegistrationRequest, wallet);
+            walletRepository.save(wallet);
+            return accountNumber;
+        } catch (Exception e) {
+            throwException();
+        }
+        return null;
     }
+
+    public void throwException(){
+        throw new RegistrationFailedException("Registration Failed, Email already exists");
+    }
+
     private void setTransactionLimit(WalletRegistrationRequest walletRegistrationRequest, Wallet wallet) {
         KycLevel kycLevel = walletRegistrationRequest.getKycLevel();
         if (kycLevel.toString().equals("LEVEL1")) {

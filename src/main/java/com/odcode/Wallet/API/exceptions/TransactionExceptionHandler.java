@@ -3,10 +3,11 @@ package com.odcode.Wallet.API.exceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
-public class ExceptionHandler {
-    @org.springframework.web.bind.annotation.ExceptionHandler
+public class TransactionExceptionHandler {
+    @ExceptionHandler(value = {TransactionFailedException.class})
     public ResponseEntity<TransactionExceptionPayLoad> handleException(TransactionFailedException transactionFailedException ){
         TransactionExceptionPayLoad transactionExceptionPayLoad= new TransactionExceptionPayLoad();
         transactionExceptionPayLoad.setMessage(transactionFailedException.getMessage());

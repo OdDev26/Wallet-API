@@ -1,5 +1,6 @@
 package com.odcode.Wallet.API.controller;
 
+import com.odcode.Wallet.API.exceptions.RegistrationFailedException;
 import com.odcode.Wallet.API.exceptions.TransactionFailedException;
 import com.odcode.Wallet.API.transaction_payload.AccountNoTransferPayLoad;
 import com.odcode.Wallet.API.transaction_payload.EmailTransferPayload;
@@ -33,9 +34,7 @@ public class WalletController {
             registrationStatus.setHttpStatus(HttpStatus.OK);
             return new ResponseEntity<>(registrationStatus, HttpStatus.OK);
         }
-        registrationStatus.setMessage("Transaction unsuccessful");
-        registrationStatus.setHttpStatus(HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(registrationStatus,HttpStatus.BAD_REQUEST);
+        return null;
     }
 
     @PostMapping("/deposit/{accountnumber}/{amount}")
@@ -49,7 +48,7 @@ public class WalletController {
             transactionStatus.setStatus(HttpStatus.OK);
             return new ResponseEntity<>(transactionStatus, HttpStatus.OK);
         }
-        throw new TransactionFailedException();
+        return null;
     }
 
     @PutMapping("/withdraw/{accountnumber}/{amount}")
@@ -64,7 +63,7 @@ public class WalletController {
             transactionStatus.setStatus(HttpStatus.OK);
             return new ResponseEntity<>(transactionStatus,HttpStatus.OK);
         }
-        throw new TransactionFailedException();
+        return null;
     }
 
     @PostMapping("/transfer/via/walletid")
@@ -78,7 +77,7 @@ public class WalletController {
             transactionStatus.setStatus(HttpStatus.OK);
             return new ResponseEntity<>(transactionStatus, HttpStatus.OK);
         }
-        throw new TransactionFailedException();
+        return null;
     }
     @PostMapping("/transfer/via/email")
     @ApiOperation("To make transfer via email")
@@ -91,7 +90,7 @@ public class WalletController {
             transactionStatus.setStatus(HttpStatus.OK);
             return new ResponseEntity<>(transactionStatus, HttpStatus.OK);
         }
-        throw new TransactionFailedException();
+        return null;
     }
 
     @PostMapping("/transfer/via/accountnumber")
@@ -105,7 +104,7 @@ public class WalletController {
             transactionStatus.setStatus(HttpStatus.OK);
             return new ResponseEntity<>(transactionStatus, HttpStatus.OK);
         }
-        throw new TransactionFailedException();
+        return null;
     }
 }
 

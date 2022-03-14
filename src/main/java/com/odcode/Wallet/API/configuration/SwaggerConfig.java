@@ -27,7 +27,7 @@ public class SwaggerConfig {
     private ApiInfo metaData() {
         return new ApiInfoBuilder()
                 .title("Wallet API")
-                .description("Create a wallet, deposit to wallet and transfer to other wallets")
+                .description("This can be used to create a wallet, deposit to wallet, withdraw from a wallet and transfer to other wallets")
                 .version("1.0.0")
                 .license("Apache 2.0")
                 .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0")
