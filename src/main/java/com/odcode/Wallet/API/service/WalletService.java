@@ -6,12 +6,9 @@ import com.odcode.Wallet.API.model.Wallet;
 import com.odcode.Wallet.API.transaction_payload.WalletIdTransferPayLoad;
 import com.odcode.Wallet.API.registration_request.WalletRegistrationRequest;
 import com.odcode.Wallet.API.repository.WalletRepository;
-import com.odcode.Wallet.API.transaction_payload.AccountNoTransferPayLoad;
-import com.odcode.Wallet.API.transaction_payload.EmailTransferPayload;
 import com.odcode.Wallet.API.transaction_payload.EmailAndAccountNoTransferPayload;
 import lombok.AllArgsConstructor;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
+
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,7 +16,6 @@ import java.util.Objects;
 
 @Service
 @AllArgsConstructor
-@EnableScheduling
 public class WalletService {
     private WalletRepository walletRepository;
 
@@ -74,58 +70,6 @@ public class WalletService {
         }
         walletRepository.save(wallet);
         return wallet.getBalance();
-    }
-
-    public void transferFundsViaAccountNumber(AccountNoTransferPayLoad accountNoTransferPayLoad1) {
-
-        BigDecimal transferAmount = accountNoTransferPayLoad1.getAmount();
-        Long senderAccountNo = accountNoTransferPayLoad1.getFromAccountNo();
-        Wallet senderWallet = walletRepository.findWalletByAccountNo(senderAccountNo);
-        BigDecimal senderWalletBalance = senderWallet.getBalance();
-        BigDecimal senderMaximumDailyTransferLimit = senderWallet.getMaximumDailyTransfer();
-        if (transferAmount.compareTo(senderMaximumDailyTransferLimit) > 0) {
-               throw new TransactionFailedException("Maximum Daily Transfer exceeded");
-        }
-
-
-        if(transferAmount.compareTo(senderWalletBalance)>0){
-            throw new TransactionFailedException("Insufficient Balance");
-        }
-        if (transferAmount.compareTo(senderMaximumDailyTransferLimit) <= 0 && transferAmount.compareTo(senderWalletBalance)<=0) {
-            Long receiverAccountNo = accountNoTransferPayLoad1.getToAccountNo();
-            Wallet receiverWallet = walletRepository.findWalletByAccountNo(receiverAccountNo);
-            receiverWallet.setBalance(receiverWallet.getBalance().add(transferAmount));
-            senderWallet.setBalance(senderWallet.getBalance().subtract(transferAmount));
-            senderWallet.setMaximumDailyTransfer(senderMaximumDailyTransferLimit.subtract(transferAmount));
-            walletRepository.save(receiverWallet);
-            walletRepository.save(senderWallet);
-        }
-
-    }
-
-    public void transferFundsViaEmail(EmailTransferPayload emailTransferPayLoad) {
-        BigDecimal transferAmount = emailTransferPayLoad.getAmount();
-        String senderEmail = emailTransferPayLoad.getFromEmail();
-        String receiverEmail= emailTransferPayLoad.getToEmail();
-        Wallet senderWallet = walletRepository.findWalletByEmail(senderEmail);
-        Wallet receiverWallet= walletRepository.findWalletByEmail(receiverEmail);
-        BigDecimal senderWalletBalance = senderWallet.getBalance();
-        BigDecimal senderMaximumDailyTransferLimit = senderWallet.getMaximumDailyTransfer();
-        if (transferAmount.compareTo(senderMaximumDailyTransferLimit) > 0) {
-            throw new TransactionFailedException("Maximum Daily Transfer exceeded");
-        }
-
-        if(transferAmount.compareTo(senderWalletBalance)>0){
-            throw new TransactionFailedException("Insufficient Balance");
-        }
-        if (transferAmount.compareTo(senderMaximumDailyTransferLimit) <= 0 && transferAmount.compareTo(senderWalletBalance)<=0) {
-           senderWallet.setBalance(senderWalletBalance.subtract(transferAmount));
-            receiverWallet.setBalance(receiverWallet.getBalance().add(transferAmount));
-            senderWallet.setMaximumDailyTransfer(senderMaximumDailyTransferLimit.subtract(transferAmount));
-            walletRepository.save(receiverWallet);
-            walletRepository.save(senderWallet);
-        }
-
     }
 
     public void transferFundsViaAccountNoAndEmail(EmailAndAccountNoTransferPayload emailAndAccountNoTransferPayLoad) {

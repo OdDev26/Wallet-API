@@ -4,8 +4,6 @@ import com.odcode.Wallet.API.exceptions.TransactionFailedException;
 import com.odcode.Wallet.API.transaction_payload.WalletIdTransferPayLoad;
 import com.odcode.Wallet.API.registration_request.WalletRegistrationRequest;
 import com.odcode.Wallet.API.service.WalletService;
-import com.odcode.Wallet.API.transaction_payload.AccountNoTransferPayLoad;
-import com.odcode.Wallet.API.transaction_payload.EmailTransferPayload;
 import com.odcode.Wallet.API.transaction_payload.EmailAndAccountNoTransferPayload;
 import com.odcode.Wallet.API.transaction_response.RegistrationStatus;
 import com.odcode.Wallet.API.transaction_response.TransactionStatus;
@@ -58,35 +56,6 @@ public class WalletController {
         }
         throw new TransactionFailedException();
     }
-
-    @PostMapping("/transfer/via/accountnumber")
-    @ApiOperation("To make transfer via account number")
-    public ResponseEntity<TransactionStatus> transferViaAccountNumber(@RequestBody AccountNoTransferPayLoad accountNoTransferPayLoad1){
-        walletService.transferFundsViaAccountNumber(accountNoTransferPayLoad1);
-
-        if(HttpStatus.OK.is2xxSuccessful()){
-            TransactionStatus transactionStatus= new TransactionStatus();
-            transactionStatus.setMessage("Transfer successful");
-            transactionStatus.setStatus(HttpStatus.OK);
-            return new ResponseEntity<>(transactionStatus, HttpStatus.OK);
-        }
-        throw new TransactionFailedException();
-    }
-
-    @PostMapping("/transfer/via/email")
-    @ApiOperation("To make transfer via email")
-    public ResponseEntity<TransactionStatus> transferViaEmail(@RequestBody EmailTransferPayload emailTransferPayLoad){
-        walletService.transferFundsViaEmail(emailTransferPayLoad);
-
-        if(HttpStatus.OK.is2xxSuccessful()){
-            TransactionStatus transactionStatus= new TransactionStatus();
-            transactionStatus.setMessage("Transfer successful");
-            transactionStatus.setStatus(HttpStatus.OK);
-            return new ResponseEntity<>(transactionStatus, HttpStatus.OK);
-        }
-        throw new TransactionFailedException();
-    }
-
     @PostMapping("/transfer/via/accountnumber/email")
     @ApiOperation("To make transfer via email and account number")
     public ResponseEntity<TransactionStatus> transferViaAccountNoAndEmail(@RequestBody EmailAndAccountNoTransferPayload emailAndAccountNoTransferPayLoad){
