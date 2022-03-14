@@ -6,13 +6,11 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
-public class EmailAndAccountNoTransferPayload {
+@AllArgsConstructor
+@NoArgsConstructor
+public class AccountNoTransferPayLoad {
     private Long fromAccountNo;
     private Long toAccountNo;
     private BigDecimal amount;
-    private String fromEmail;
-    private String toEmail;
 }

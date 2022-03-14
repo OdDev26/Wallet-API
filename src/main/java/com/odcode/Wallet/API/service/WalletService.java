@@ -3,10 +3,11 @@ package com.odcode.Wallet.API.service;
 import com.odcode.Wallet.API.exceptions.TransactionFailedException;
 import com.odcode.Wallet.API.model.KycLevel;
 import com.odcode.Wallet.API.model.Wallet;
+import com.odcode.Wallet.API.transaction_payload.AccountNoTransferPayLoad;
+import com.odcode.Wallet.API.transaction_payload.EmailTransferPayload;
 import com.odcode.Wallet.API.transaction_payload.WalletIdTransferPayLoad;
 import com.odcode.Wallet.API.registration_request.WalletRegistrationRequest;
 import com.odcode.Wallet.API.repository.WalletRepository;
-import com.odcode.Wallet.API.transaction_payload.EmailAndAccountNoTransferPayload;
 import lombok.AllArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -33,8 +34,7 @@ public class WalletService {
 
         wallet.setAccountNo(accountNumber);
         wallet.setBalance(BigDecimal.valueOf(0.00));
-      setTransactionLimit(walletRegistrationRequest,wallet);
-
+        setTransactionLimit(walletRegistrationRequest,wallet);
         walletRepository.save(wallet);
         return accountNumber;
     }
@@ -72,31 +72,6 @@ public class WalletService {
         return wallet.getBalance();
     }
 
-    public void transferFundsViaAccountNoAndEmail(EmailAndAccountNoTransferPayload emailAndAccountNoTransferPayLoad) {
-        BigDecimal transferAmount = emailAndAccountNoTransferPayLoad.getAmount();
-        Long toAccountNo= emailAndAccountNoTransferPayLoad.getToAccountNo();
-        String senderEmail= emailAndAccountNoTransferPayLoad.getFromEmail();
-        Wallet senderWallet = walletRepository.findWalletByEmail(senderEmail);
-        Wallet receiverWallet= walletRepository.findWalletByAccountNo(toAccountNo);
-        BigDecimal senderWalletBalance = senderWallet.getBalance();
-        BigDecimal senderMaximumDailyTransfer = senderWallet.getMaximumDailyTransfer();
-
-        if (transferAmount.compareTo(senderMaximumDailyTransfer) > 0) {
-            throw new TransactionFailedException("Maximum Daily Transfer exceeded");
-        }
-
-        if(transferAmount.compareTo(senderWalletBalance)>0){
-            throw new TransactionFailedException("Insufficient Balance");
-        }
-        if (transferAmount.compareTo(senderMaximumDailyTransfer) <= 0 && transferAmount.compareTo(senderWalletBalance)<=0) {
-            senderWallet.setBalance(senderWalletBalance.subtract(transferAmount));
-            receiverWallet.setBalance(receiverWallet.getBalance().add(transferAmount));
-            senderWallet.setMaximumDailyTransfer(senderMaximumDailyTransfer.subtract(transferAmount));
-            walletRepository.save(receiverWallet);
-            walletRepository.save(senderWallet);
-        }
-    }
-
     public BigDecimal withdrawAmount(Long accountNumber, BigDecimal amount) {
 
 
@@ -117,6 +92,58 @@ public class WalletService {
         }
         return wallet.getBalance();
     }
+    public void transferFundsViaAccountNumber(AccountNoTransferPayLoad accountNoTransferPayLoad1) {
+
+        BigDecimal transferAmount = accountNoTransferPayLoad1.getAmount();
+        Long senderAccountNo = accountNoTransferPayLoad1.getFromAccountNo();
+        Wallet senderWallet = walletRepository.findWalletByAccountNo(senderAccountNo);
+        BigDecimal senderWalletBalance = senderWallet.getBalance();
+        BigDecimal senderMaximumDailyTransferLimit = senderWallet.getMaximumDailyTransfer();
+        if (transferAmount.compareTo(senderMaximumDailyTransferLimit) > 0) {
+            throw new TransactionFailedException("Maximum Daily Transfer exceeded");
+        }
+
+
+        if(transferAmount.compareTo(senderWalletBalance)>0){
+            throw new TransactionFailedException("Insufficient Balance");
+        }
+        if (transferAmount.compareTo(senderMaximumDailyTransferLimit) <= 0 && transferAmount.compareTo(senderWalletBalance)<=0) {
+            Long receiverAccountNo = accountNoTransferPayLoad1.getToAccountNo();
+            Wallet receiverWallet = walletRepository.findWalletByAccountNo(receiverAccountNo);
+            receiverWallet.setBalance(receiverWallet.getBalance().add(transferAmount));
+            senderWallet.setBalance(senderWallet.getBalance().subtract(transferAmount));
+            senderWallet.setMaximumDailyTransfer(senderMaximumDailyTransferLimit.subtract(transferAmount));
+            walletRepository.save(receiverWallet);
+            walletRepository.save(senderWallet);
+        }
+
+    }
+
+    public void transferFundsViaEmail(EmailTransferPayload emailTransferPayLoad) {
+        BigDecimal transferAmount = emailTransferPayLoad.getAmount();
+        String senderEmail = emailTransferPayLoad.getFromEmail();
+        String receiverEmail= emailTransferPayLoad.getToEmail();
+        Wallet senderWallet = walletRepository.findWalletByEmail(senderEmail);
+        Wallet receiverWallet= walletRepository.findWalletByEmail(receiverEmail);
+        BigDecimal senderWalletBalance = senderWallet.getBalance();
+        BigDecimal senderMaximumDailyTransferLimit = senderWallet.getMaximumDailyTransfer();
+        if (transferAmount.compareTo(senderMaximumDailyTransferLimit) > 0) {
+            throw new TransactionFailedException("Maximum Daily Transfer exceeded");
+        }
+
+        if(transferAmount.compareTo(senderWalletBalance)>0){
+            throw new TransactionFailedException("Insufficient Balance");
+        }
+        if (transferAmount.compareTo(senderMaximumDailyTransferLimit) <= 0 && transferAmount.compareTo(senderWalletBalance)<=0) {
+            senderWallet.setBalance(senderWalletBalance.subtract(transferAmount));
+            receiverWallet.setBalance(receiverWallet.getBalance().add(transferAmount));
+            senderWallet.setMaximumDailyTransfer(senderMaximumDailyTransferLimit.subtract(transferAmount));
+            walletRepository.save(receiverWallet);
+            walletRepository.save(senderWallet);
+        }
+
+    }
+
     public void transferViaWalletId(WalletIdTransferPayLoad walletIdTransferPayLoad){
         BigDecimal transferAmount = walletIdTransferPayLoad.getAmount();
         Integer senderWalletId= walletIdTransferPayLoad.getFromWalletId();
