@@ -26,20 +26,13 @@ public class WalletController {
     public ResponseEntity<RegistrationStatus> createWallet(@RequestBody WalletRegistrationRequest walletRegistrationRequest){
 
         walletService.registerUser(walletRegistrationRequest);
-
-
         RegistrationStatus registrationStatus= new RegistrationStatus();
         if(HttpStatus.OK.is2xxSuccessful()){
             registrationStatus.setMessage("Registration successful");
             registrationStatus.setHttpStatus(HttpStatus.OK);
             return new ResponseEntity<>(registrationStatus, HttpStatus.OK);
         }
-        else {
-            registrationStatus.setMessage("Registration Unsuccessful");
-            registrationStatus.setHttpStatus(HttpStatus.BAD_REQUEST);
-            return new ResponseEntity<>(registrationStatus,HttpStatus.BAD_REQUEST);
-        }
-
+        return null;
     }
 
     @PostMapping("/deposit/{accountnumber}/{amount}")
