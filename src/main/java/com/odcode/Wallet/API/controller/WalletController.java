@@ -28,16 +28,15 @@ public class WalletController {
         walletService.registerUser(walletRegistrationRequest);
 
 
+        RegistrationStatus registrationStatus= new RegistrationStatus();
         if(HttpStatus.OK.is2xxSuccessful()){
-            RegistrationStatus registrationStatus= new RegistrationStatus();
             registrationStatus.setMessage("Registration successful");
             registrationStatus.setHttpStatus(HttpStatus.OK);
             return new ResponseEntity<>(registrationStatus, HttpStatus.OK);
         }
         else {
-            RegistrationStatus registrationStatus= new RegistrationStatus();
-            registrationStatus.setMessage("Registration successful");
             registrationStatus.setMessage("Registration Unsuccessful");
+            registrationStatus.setHttpStatus(HttpStatus.BAD_REQUEST);
             return new ResponseEntity<>(registrationStatus,HttpStatus.BAD_REQUEST);
         }
 
@@ -79,6 +78,7 @@ public class WalletController {
         if(HttpStatus.OK.is2xxSuccessful()){
             TransactionStatus transactionStatus= new TransactionStatus();
             transactionStatus.setMessage("Withdrawal successful");
+            transactionStatus.setStatus(HttpStatus.OK);
             return new ResponseEntity<>(transactionStatus,HttpStatus.OK);
         }
         throw new TransactionFailedException();
